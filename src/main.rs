@@ -4,15 +4,16 @@ use headless_chrome::Browser;
 use std::error::Error;
 use std::fs;
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
+#[command(author="Kamal Kumar <iamkamalkumar@proton.me>", version, about="Convert any (local/online) website to pdf.", long_about = None, next_line_help = true)]
 struct Cli {
-    #[arg(short = 'd', long = "domain")]
+    #[arg(short = 'd', long = "domain", group = "url")]
     domain: Option<String>,
-    #[arg(short = 'n', long = "name")]
-    name: Option<String>,
-    #[arg(short = 'p', long = "path")]
+    #[arg(short = 'n', long = "name", default_value_t = String::from("rust"))]
+    name: String,
+    #[arg(short = 'p', long = "path", group = "url")]
     path: Option<String>,
-    #[arg(short = 'P', long = "png")]
+    #[arg(short = 'P', long = "png", requires = "url")]
     png: bool,
 }
 
@@ -23,16 +24,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let pdfurl: String;
     let pdf;
-    let pdfname: String;
-    let pngname: String;
-
-    if args.name.is_some() {
-        pdfname = format!("{:?}.pdf", &args.name.clone().expect("no name provided"));
-        pngname = format!("{:?}.png", &args.name.clone().expect("no name provided"));
-    } else {
-        pdfname = String::from("rust.pdf");
-        pngname = String::from("rust.png");
-    }
+    let pdfname: String = format!("{}.pdf", &args.name);
+    let pngname: String = format!("{}.png", &args.name);
 
     if args.domain.is_some() {
         pdfurl = format!(
