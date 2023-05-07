@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.0", features = ["derive"] }
+dirs = "5.0.1"
+
 
 [dependencies.headless_chrome]
 version = "1.0.5"

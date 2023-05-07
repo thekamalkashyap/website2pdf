@@ -1,4 +1,5 @@
 use clap::Parser;
+use dirs;
 use headless_chrome::protocol::cdp::Page;
 use headless_chrome::Browser;
 use std::error::Error;
@@ -24,8 +25,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let pdfurl: String;
     let pdf;
-    let pdfname: String = format!("{}.pdf", &args.name);
-    let pngname: String = format!("{}.png", &args.name);
+    let mut path = dirs::home_dir().expect("cannot find path to home directory");
+    path.push("Downloads");
+    path.push(format!("{}.pdf", &args.name));
 
     if args.domain.is_some() {
         pdfurl = format!(
@@ -42,8 +44,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     pdf = tab.print_to_pdf(None)?;
     if args.path.is_some() || args.domain.is_some() {
-        fs::write(&pdfname, &pdf)?;
+        fs::write(&path, &pdf)?;
     };
+
+    path.pop();
+    path.push(format!("{}.png", &args.name));
 
     if args.png && (args.path.is_some() || args.domain.is_some()) {
         let png = tab.capture_screenshot(
@@ -52,7 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             None,
             true,
         )?;
-        fs::write(&pngname, png)?;
+        fs::write(&path, png)?;
     };
 
     Ok(())
